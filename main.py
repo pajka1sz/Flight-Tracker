@@ -1,39 +1,34 @@
-import json
+import pandas as pd
 import time
 
-from opensky_api import OpenSkyApi, TokenManager
 
-from utils import Plane, AIRPORTS_ICAOS
+def extract_data():
+    start = time.time()
+    for i in range(10, 24):
+        print(f"{i} started...")
+        a = i if i > 9 else f"0{i}"
+        df = pd.read_csv(f"data/zipped/states_2017-06-05-{a}.csv.gz", compression="gzip")
+        df.to_parquet(f"data/processed/states_2017-06-05-{a}.parquet", index=False)
+        print(f"{i} finished")
+    end = time.time()
+    print(end - start)
+    return "Success!"
 
-#import sys
-#print(sys.executable, "\ndupa\n", sys.version)
+extract_data()
 
-tm = TokenManager.from_json_file('credentials.json')
-api = OpenSkyApi(token_manager=tm)
-#print(help(api))
-api_states = api.get_states()
-# n = len(api_states.states)
-#print(api_states.states)
-
-end = int(time.time())
-start = end - 60 * 60 * 24
-planes = []
-
-for city, airport in AIRPORTS_ICAOS.items():
-    departures = api.get_departures_by_airport(airport=airport, begin=start, end=end)
-    print(city, ': ', departures)
-    for d in departures:
-        track = api.get_track_by_aircraft(d.icao24, d.firstSeen)
-        print(d.icao24, '\n', track)
-        planes.append(Plane(d.icao24, 'dupa', 'dupa', track))
-
-#track = api.get_track_by_aircraft('a6d83c')
-#print('TRACK:', track)
-print(planes, '\n', len(planes))
-with open('planes.json', 'w') as f:
-    for plane in planes:
-        json.dump(plane.to_dict(), f)
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    pass
+# start = time.time()
+# df = pd.concat([pd.read_parquet(f"data/processed/states_2017-06-05-0{i}.parquet") for i in range(5)], ignore_index=True)
+# end = time.time()
+# print(end - start)
+# print(df.tail(), len(df))
+#
+# df = df.sort_values(["icao24", "time"])
+# groups = df.groupby("icao24")
+#
+# df["time_diff"] = df.groupby("icao24")["time"].diff()
+# df["flight_icao"] = (df["time_diff"] > 1800).groupby(df["icao24"]).cumsum()
+#
+# flights = df.groupby(["icao24", "flight_icao"])
+#
+# print(flights.tail())
+# print(df[["icao24", "flight_icao"]].value_counts().head())
