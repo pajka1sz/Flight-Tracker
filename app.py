@@ -1,8 +1,11 @@
 from dash import Dash, dcc, callback, Input, Output
 from dash.html import Div, H1
 import plotly.express as px
+from main import export_df
 
 app = Dash()
+
+df = export_df()
 
 app.layout = Div([
     H1("Flight Tracker"),
@@ -13,7 +16,7 @@ app.layout = Div([
                  for i in df["icao24"].unique()]
     ),
 
-    dcc.Graph(figure={}, id="flight-map")
+    dcc.Graph(figure={}, id="flight-map", style={"width": "100%", "height": "100%"}),
 ])
 
 
@@ -26,7 +29,7 @@ def show_flight(aircraft_chosen):
         return {}
 
     aircraft_track = df[df["icao24"] == aircraft_chosen].sort_values("time")
-    fig = px.line_map(aircraft_track, lat="latitude", lon="longitude")
+    fig = px.line_map(aircraft_track, lat="lat", lon="lon")
     return fig
 
 
