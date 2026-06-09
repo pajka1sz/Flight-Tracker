@@ -1,2 +1,4 @@
-pandas
+pandas~=2.2.3
 pyarrow>=20.0.0
+dash~=4.1.0
+plotly~=6.7.0
